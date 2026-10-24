@@ -27,35 +27,35 @@ sea-orm = ["std", "dep:sea-orm"]
 serde = [ "dep:serde"]
 
 [dependencies]
-arbitrary = { version = "1", optional = true }
+arbitrary = { workspace = true, optional = true }
 digest = { workspace = true, optional = true }
 prost = { workspace = true, optional = true }
 rand = { workspace = true, default-features = false, optional = true }
-rusqlite = { version = "0.40.2", default-features = false, optional = true }
-schemars = { version = "1.2.1", default-features = false, optional = true }
-sea-orm = { version = "2.0.2", default-features = false, optional = true }
-serde = { version = "1.0.219", default-features = false,  optional = true }
-thiserror = { version = "2.0.12", default-features = false}
+rusqlite = { workspace = true, optional = true }
+schemars = { workspace = true, optional = true }
+sea-orm = { workspace = true, optional = true }
+serde = { workspace = true, optional = true }
+thiserror.workspace = true
 
 [build-dependencies]
 prost-build.workspace = true
 
 [dev-dependencies]
 chrono.workspace = true
-serde_test = "1.0.177"
-serde = { version = "1.0.219", default-features = false, features = ["derive"]}
-sea-orm = { version = "2.0.2", default-features = false, features = ["macros", "mock"]}
-tokio = { version = "1.47.1", default-features = false, features = ["macros", "rt"] }
+serde_test.workspace = true
+serde = { workspace = true, features = ["derive"] }
+sea-orm = { workspace = true, features = ["macros", "mock"] }
+tokio = { workspace = true, features = ["macros", "rt"] }
 rand = { workspace = true, default-features = false, features = ["thread_rng"]}
 sha1.workspace = true
 sha2.workspace = true
 sha3.workspace = true
 shake.workspace = true
-jsonschema = "0.52"
-serde_json = "1.0"
+jsonschema.workspace = true
+serde_json.workspace = true
 # Only so `cargo test --all-features` can link the `rusqlite` integration without
 # a system SQLite. Dev-only: it is not part of the published dependency graph.
-libsqlite3-sys = { version = "0.38", features = ["bundled"] }
+libsqlite3-sys = { workspace = true, features = ["bundled"] }
 
 [workspace]
 members = [".", "examples/grain-id-cli", "examples/grain-id-prost-example"]
@@ -69,13 +69,27 @@ keywords = ["id", "identifier", "uuid", "distributed", "human-readable"]
 version = "0.16.0"
 
 [workspace.dependencies]
+# Dependabot does not update requirements declared directly in the root
+# package's [dependencies]/[dev-dependencies]/[build-dependencies] (it only edits
+# [workspace.dependencies] and member manifests), so every version lives here.
+arbitrary = "1"
 chrono = "0.4.42"
 digest = { version = "0.11", default-features = false }
+jsonschema = "0.52"
+libsqlite3-sys = "0.38"
 md-5 = { version = "0.11", default-features = false }
 prost = { version = "0.14.1", default-features = false, features = ["derive"] }
 prost-build = "0.14.1"
 rand = {version = "0.10.0", default-features = false}
+rusqlite = { version = "0.40.2", default-features = false }
+schemars = { version = "1.2.1", default-features = false }
+sea-orm = { version = "2.0.2", default-features = false }
+serde = { version = "1.0.219", default-features = false }
+serde_json = "1.0"
+serde_test = "1.0.177"
 sha1 = { version = "0.11", default-features = false }
 sha2 = { version = "0.11", default-features = false }
 sha3 = { version = "0.12.0", default-features = false }
 shake = { version = "0.1.0", default-features = false }
+thiserror = { version = "2.0.12", default-features = false }
+tokio = { version = "1.47.1", default-features = false }
