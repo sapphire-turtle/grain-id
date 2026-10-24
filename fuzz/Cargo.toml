@@ -14,7 +14,7 @@ arbitrary = ["grain-id/arbitrary"]
 libfuzzer-sys = "0.4"
 
 [dependencies.grain-id]
-path = ".."
+path = "../crates/grain-id"
 
 [workspace]
 members = ["."]
