@@ -34,6 +34,9 @@ confidence-threshold = 0.93
 # transitively-pulled `syn`/`bitflags`/`hashbrown` version trips it).
 multiple-versions = "allow"
 wildcards = "deny"
+# Lets unpublished workspace crates (examples/grain-id-prost-example) depend on
+# grain-id by path without a version; publishable crates still need one.
+allow-wildcard-paths = true
 
 [sources]
 unknown-registry = "deny"
