@@ -9,7 +9,7 @@ version.workspace = true
 publish = false
 
 [dependencies]
-grain-id = {path = "../..", features = ["prost"]}
+grain-id = {path = "../../crates/grain-id", features = ["prost"]}
 prost.workspace = true
 
 [build-dependencies]
