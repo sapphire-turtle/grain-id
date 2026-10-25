@@ -9,14 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-        with:
-          submodules: 'true'
       - name: Install nightly rustfmt
         run: rustup component add --toolchain nightly rustfmt
       - name: Run rustfmt
         run: cargo +nightly fmt --check --all
-      - name: Install Protoc
-        uses: arduino/setup-protoc@v3
       - name: Run clippy
         run: cargo clippy --workspace --all-features --all-targets
   test:
@@ -26,11 +22,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
-        with:
-          submodules: 'true'
       - uses: dtolnay/rust-toolchain@stable
-      - uses: arduino/setup-protoc@v3
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: Swatinem/rust-cache@v2
       - run: cargo test --workspace --all-features

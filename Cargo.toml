@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/grain-id", "cli", "examples/grain-id-prost-example"]
+members = ["crates/grain-id", "cli"]
 resolver = "3"
 
 [workspace.package]
@@ -14,10 +14,6 @@ version = "0.16.0"
 chrono = "0.4.42"
 digest = { version = "0.11", default-features = false }
 md-5 = { version = "0.11", default-features = false }
-prost = { version = "0.14.1", default-features = false, features = ["derive"] }
-prost-build = "0.14.1"
 rand = {version = "0.10.0", default-features = false}
 sha1 = { version = "0.11", default-features = false }
 sha2 = { version = "0.11", default-features = false }
-sha3 = { version = "0.12.0", default-features = false }
-shake = { version = "0.1.0", default-features = false }

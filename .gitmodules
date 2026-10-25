@@ -1,3 +1,0 @@
-[submodule "grain-id-proto"]
-	path = crates/grain-id/grain-id-proto
-	url = https://github.com/sapphire-turtle/grain-id-proto

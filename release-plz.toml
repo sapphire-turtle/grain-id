@@ -24,13 +24,6 @@ version_group = "workspace"
 name = "grain-id-cli"
 version_group = "workspace"
 
-# Cargo.toml 側で publish = false の crate は release-plz 側にも明示する
-# （per-package の publish 設定は Cargo.toml と一致している必要がある）。
-[[package]]
-name = "grain-id-prost-example"
-release = false
-publish = false
-
 [changelog]
 # 既存 CHANGELOG.md のヘッダーをそのまま維持し、新規エントリは
 # このヘッダーの下に挿入される（既存履歴は保持される）。

@@ -1,8 +1,0 @@
-syntax = "proto3";
-package grain_id_example;
-
-import "grain_id/grain_id.proto";
-
-message Example {
-    grain_id.GrainId GrainId = 1;
-}

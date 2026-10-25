@@ -32,7 +32,7 @@ Add this to your `Cargo.toml`:
 grain-id = "0.14.1"
 
 # With optional features
-grain-id = { version = "0.15.0", features = ["arbitrary", "serde", "rusqlite", "sea-orm", "prost", "schemars"] }
+grain-id = { version = "0.15.0", features = ["arbitrary", "serde", "schemars"] }
 ```
 
 ### For no_std Environments
@@ -50,17 +50,18 @@ grain-id = { version = "0.14.1", default-features = false }
 - **Collision-resistant**: Sufficient entropy for personal distributed systems
 - **Compact**: Shorter than UUIDs while maintaining uniqueness
 - **Type-safe**: Rust implementation with strong typing
-- **Multiple integrations**: Support for serde, rusqlite, sea-orm, and protobuf
+- **Primitive-friendly**: Backed by a `u64`, so it maps directly onto integer columns and fields
 
 ### Optional Feature Flags
 
 - `arbitrary`: `arbitrary::Arbitrary` support for fuzzing tests.
-- `digest`: Hash-based `GrainId` generation via `digest::Digest` trait.
 - `serde`: Serialization/deserialization support
-- `rusqlite`: SQLite database integration
-- `sea-orm`: SeaORM ORM integration
-- `prost`: Protocol Buffers support
 - `schemars`: JSON Schema support
+
+Integrations with databases, ORMs, or serialization formats beyond serde are intentionally not built in.
+`GrainId` converts losslessly to and from `u64`, so you can store it as an integer column or field and convert at the boundary.
+To derive an ID from a hash, pass the first 5 bytes of any digest to `GrainId::from_byte_prefix`.
+If you would like a specific integration to be provided by this crate, please open an issue.
 
 ## Examples
 ```rust

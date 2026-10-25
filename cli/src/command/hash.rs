@@ -1,6 +1,7 @@
 use std::io::{self, Read};
 use std::path::PathBuf;
 
+use digest::Digest;
 use grain_id::GrainId;
 
 fn read_input(file: Option<PathBuf>, string: Option<String>) -> Vec<u8> {
@@ -16,6 +17,12 @@ fn read_input(file: Option<PathBuf>, string: Option<String>) -> Vec<u8> {
         io::stdin().read_to_end(&mut buf).unwrap();
         buf
     }
+}
+
+/// Generate a [`GrainId`] from the leading 35 bits of the hash of `input`.
+fn grain_id_from_digest<D: Digest>(input: &[u8]) -> GrainId {
+    let output = D::digest(input);
+    GrainId::from_byte_prefix(output[..5].try_into().unwrap())
 }
 
 macro_rules! impl_hash_command {
@@ -40,7 +47,7 @@ macro_rules! impl_hash_command {
         impl $name {
             pub fn run(self) {
                 let bytes = read_input(self.file, self.string);
-                println!("{}", GrainId::from_digest::<$digest>(&bytes));
+                println!("{}", grain_id_from_digest::<$digest>(&bytes));
             }
         }
     };
