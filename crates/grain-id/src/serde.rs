@@ -1,21 +1,17 @@
-use super::*;
-#[cfg(feature = "std")]
-use crate::GrainIdPrefix;
-use ::serde::{Deserialize, Serialize, de::Error};
+use core::fmt;
 
+use ::serde::{
+    Deserialize, Deserializer, Serialize, Serializer,
+    de::{self, Visitor},
+};
+
+use crate::{GrainId, GrainIdPrefix, alphabet};
+
+/// Serializes as a 7-character string in human-readable formats and as a [`u64`] otherwise.
 impl Serialize for GrainId {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: ::serde::Serializer,
-    {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         if serializer.is_human_readable() {
-            let chars = self.to_chars();
-            let mut buf = [0; 7];
-            for i in 0..7 {
-                buf[i] = u8::try_from(chars[i]).unwrap();
-            }
-            let s = unsafe { str::from_utf8_unchecked(&buf) };
-            serializer.serialize_str(s)
+            serializer.serialize_str(alphabet::as_str(&self.encode()))
         } else {
             serializer.serialize_u64(self.to_u64())
         }
@@ -23,64 +19,67 @@ impl Serialize for GrainId {
 }
 
 impl<'de> Deserialize<'de> for GrainId {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: ::serde::Deserializer<'de>,
-    {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        struct GrainIdVisitor;
+
+        impl Visitor<'_> for GrainIdVisitor {
+            type Value = GrainId;
+
+            fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                f.write_str("a 7-character grain-id string or an integer below 2^35")
+            }
+
+            fn visit_str<E: de::Error>(self, v: &str) -> Result<GrainId, E> {
+                v.parse().map_err(E::custom)
+            }
+
+            fn visit_u64<E: de::Error>(self, v: u64) -> Result<GrainId, E> {
+                GrainId::from_u64(v).map_err(E::custom)
+            }
+        }
+
         if deserializer.is_human_readable() {
-            #[cfg(feature = "std")]
-            {
-                <String as Deserialize>::deserialize(deserializer)?
-                    .parse::<GrainId>()
-                    .map_err(D::Error::custom)
-            }
-            #[cfg(not(feature = "std"))]
-            {
-                (<&str as Deserialize>::deserialize(deserializer)?)
-                    .parse::<GrainId>()
-                    .map_err(D::Error::custom)
-            }
+            deserializer.deserialize_str(GrainIdVisitor)
         } else {
-            let i = u64::deserialize(deserializer)?;
-            GrainId::from_u64(i).map_err(D::Error::custom)
+            deserializer.deserialize_u64(GrainIdVisitor)
         }
     }
 }
 
-#[cfg(feature = "std")]
+/// Serializes as a string of up to 7 characters in human-readable formats and as a
+/// `(value, len)` tuple otherwise.
 impl Serialize for GrainIdPrefix {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: ::serde::Serializer,
-    {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         if serializer.is_human_readable() {
-            serializer.serialize_str(&self.to_string())
+            let (buf, len) = self.encode();
+            serializer.serialize_str(alphabet::as_str(&buf[..len]))
         } else {
-            use ::serde::ser::SerializeTuple;
-            let mut tup = serializer.serialize_tuple(2)?;
-            tup.serialize_element(&self.value())?;
-            tup.serialize_element(&self.len())?;
-            tup.end()
+            (self.value(), self.len()).serialize(serializer)
         }
     }
 }
 
-#[cfg(feature = "std")]
 impl<'de> Deserialize<'de> for GrainIdPrefix {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: ::serde::Deserializer<'de>,
-    {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         if deserializer.is_human_readable() {
-            <String as Deserialize>::deserialize(deserializer)?
-                .parse::<GrainIdPrefix>()
-                .map_err(D::Error::custom)
-        } else {
-            let (value, len) = <(u64, u8) as Deserialize>::deserialize(deserializer)?;
-            if len > 7 {
-                return Err(D::Error::custom(crate::Error::InvalidLength(len as usize)));
+            struct PrefixVisitor;
+
+            impl Visitor<'_> for PrefixVisitor {
+                type Value = GrainIdPrefix;
+
+                fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                    f.write_str("a grain-id prefix string of at most 7 characters")
+                }
+
+                fn visit_str<E: de::Error>(self, v: &str) -> Result<GrainIdPrefix, E> {
+                    v.parse().map_err(E::custom)
+                }
             }
-            Ok(GrainIdPrefix::new(value, len))
+
+            deserializer.deserialize_str(PrefixVisitor)
+        } else {
+            let (value, len) = <(u64, u8)>::deserialize(deserializer)?;
+            GrainIdPrefix::from_parts(value, len).map_err(de::Error::custom)
         }
     }
 }

@@ -1,14 +1,13 @@
 use schemars::{JsonSchema, json_schema};
 
 use crate::GrainId;
-#[cfg(feature = "std")]
 use crate::GrainIdPrefix;
 
 impl JsonSchema for GrainId {
-    fn schema_name() -> std::borrow::Cow<'static, str> {
+    fn schema_name() -> alloc::borrow::Cow<'static, str> {
         "GrainId".into()
     }
-    fn schema_id() -> std::borrow::Cow<'static, str> {
+    fn schema_id() -> alloc::borrow::Cow<'static, str> {
         "grain_id::GrainId".into()
     }
     fn json_schema(_generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
@@ -27,12 +26,11 @@ impl JsonSchema for GrainId {
     }
 }
 
-#[cfg(feature = "std")]
 impl JsonSchema for GrainIdPrefix {
-    fn schema_name() -> std::borrow::Cow<'static, str> {
+    fn schema_name() -> alloc::borrow::Cow<'static, str> {
         "GrainIdPrefix".into()
     }
-    fn schema_id() -> std::borrow::Cow<'static, str> {
+    fn schema_id() -> alloc::borrow::Cow<'static, str> {
         "grain_id::GrainIdPrefix".into()
     }
     fn json_schema(_generator: &mut schemars::SchemaGenerator) -> schemars::Schema {

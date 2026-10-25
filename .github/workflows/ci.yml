@@ -12,9 +12,11 @@ jobs:
       - name: Install nightly rustfmt
         run: rustup component add --toolchain nightly rustfmt
       - name: Run rustfmt
-        run: cargo +nightly fmt --check --all
+        run: |
+          cargo +nightly fmt --check --all
+          cargo +nightly fmt --check --manifest-path fuzz/Cargo.toml
       - name: Run clippy
-        run: cargo clippy --workspace --all-features --all-targets
+        run: cargo clippy --workspace --all-features --all-targets -- -D warnings
   test:
     strategy:
       matrix:
@@ -25,3 +27,47 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - run: cargo test --workspace --all-features
+  test-no-default-features:
+    name: Test (no default features)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test -p grain-id --no-default-features
+  no-std:
+    name: Build (no_std)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: thumbv7em-none-eabihf
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build -p grain-id --no-default-features --target thumbv7em-none-eabihf
+      - run: cargo build -p grain-id --no-default-features --features rand,serde,schemars --target thumbv7em-none-eabihf
+  fuzz:
+    name: Fuzz
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [parse, roundtrip, serde]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-fuzz
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: fuzz
+      # The prebuilt cargo-fuzz binary is built for musl and defaults to that
+      # target, which AddressSanitizer does not support.
+      - run: cargo fuzz run --target x86_64-unknown-linux-gnu ${{ matrix.target }} -- -max_total_time=60
+      - name: Upload crash artifacts
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: fuzz-artifacts-${{ matrix.target }}
+          path: fuzz/artifacts

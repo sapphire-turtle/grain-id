@@ -12,16 +12,18 @@ impl Distribution<GrainId> for StandardUniform {
 impl GrainId {
     /// Generate a new random [`GrainId`].
     ///
-    /// This method generate a random ID.
-    /// The generated ID is guaranteed to not be the [`NIL`](Self::NIL) value.
+    /// Every value, including [`NIL`](Self::NIL) and [`MAX`](Self::MAX), is equally likely.
+    /// Uses [`rand::rng()`](::rand::rng); to use another generator, sample
+    /// [`StandardUniform`] with it instead (e.g. `rng.random::<GrainId>()`).
     ///
     /// # Examples
     ///
     /// ```
     /// # use grain_id::*;
     /// let id = GrainId::random();
-    /// assert_ne!(id, GrainId::NIL);
+    /// assert!(id <= GrainId::MAX);
     /// ```
+    #[cfg(feature = "std")]
     pub fn random() -> Self {
         <GrainId>::from_u64_lossy(::rand::random())
     }

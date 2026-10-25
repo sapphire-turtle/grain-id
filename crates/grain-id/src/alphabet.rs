@@ -1,3 +1,5 @@
+use crate::Error;
+
 /// Lookup table for encoding integer to BASE32 characters.
 ///
 /// # Examples
@@ -16,18 +18,6 @@ pub const ENCODE_TABLE: &[char; 32] = &[
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'j',
     'k', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z',
 ];
-
-/// A delimiter used in encoding.
-///
-/// # Examples
-///
-/// ```
-/// # use grain_id::alphabet::ENCODE_DELIMITER;
-/// assert_eq!(ENCODE_DELIMITER, '-');
-/// ```
-pub const ENCODE_DELIMITER: char = '-';
-
-pub(crate) const BASE: u8 = ENCODE_TABLE.len() as u8;
 
 /// Lookup table for decoding BASE32 characters to values
 ///
@@ -136,68 +126,45 @@ pub const DECODE_TABLE: &[u8; 256] = &{
     }
 };
 
-/// Lookup table for decoding delimiter characters to boolean.
-///
-/// Valid characters ('-' and '_') map to true and others map to false.
-///
-/// ```
-/// # use grain_id::alphabet::DECODE_DELIMITER_TABLE;
-/// assert_eq!(
-///     DECODE_DELIMITER_TABLE,
-///     &[
-///         false, false, false, false, false, false, false, false, false, false, false, false,
-///         false, false, false, false, false, false, false, false, false, false, false, false,
-///         false, false, false, false, false, false, false, false, false, false, false, false,
-///         false, false, false, false, false, false, false, false, false, true, false, false,
-///         false, false, false, false, false, false, false, false, false, false, false, false,
-///         false, false, false, false, false, false, false, false, false, false, false, false,
-///         false, false, false, false, false, false, false, false, false, false, false, false,
-///         false, false, false, false, false, false, false, false, false, false, false, true,
-///         false, false, false, false, false, false, false, false, false, false, false, false,
-///         false, false, false, false, false, false, false, false, false, false, false, false,
-///         false, false, false, false, false, false, false, false, false, false, false, false,
-///         false, false, false, false, false, false, false, false, false, false, false, false,
-///         false, false, false, false, false, false, false, false, false, false, false, false,
-///         false, false, false, false, false, false, false, false, false, false, false, false,
-///         false, false, false, false, false, false, false, false, false, false, false, false,
-///         false, false, false, false, false, false, false, false, false, false, false, false,
-///         false, false, false, false, false, false, false, false, false, false, false, false,
-///         false, false, false, false, false, false, false, false, false, false, false, false,
-///         false, false, false, false, false, false, false, false, false, false, false, false,
-///         false, false, false, false, false, false, false, false, false, false, false, false,
-///         false, false, false, false, false, false, false, false, false, false, false, false,
-///         false, false, false, false
-///     ]
-/// );
-/// ```
-pub const DECODE_DELIMITER_TABLE: &[bool; 256] = &{
-    let mut buf = [false; 256];
-    let mut i: u8 = 0;
-
-    loop {
-        buf[i as usize] = matches!(i, b'-' | b'_');
-        if i == 255 {
-            break buf;
-        }
-        i += 1
+/// Encodes the lower 35 bits of `value` as 7 ASCII characters, most significant first.
+pub(crate) const fn encode(value: u64) -> [u8; 7] {
+    let mut buf = [0; 7];
+    let mut i = 0;
+    while i < 7 {
+        let u5 = (value >> (5 * (6 - i))) & 0b11111;
+        buf[i] = ENCODE_TABLE[u5 as usize] as u8;
+        i += 1;
     }
-};
-
-/// Encode 5bit uint to char.
-///
-/// First 3 bits are ignored.
-pub(crate) const fn u5_to_char_lossy(value: u8) -> char {
-    let value = value & 0b00011111;
-    ENCODE_TABLE[value as usize]
+    buf
 }
 
-/// Decode char to 5bit uint
-pub(crate) fn char_to_u5(c: char) -> Option<u8> {
-    match TryInto::<u8>::try_into(c) {
-        Ok(i) => match DECODE_TABLE[i as usize] {
-            u8::MAX => None,
-            j => Some(j),
-        },
-        Err(_) => None,
+/// Views bytes produced by [`encode`] as a string.
+pub(crate) fn as_str(bytes: &[u8]) -> &str {
+    core::str::from_utf8(bytes).expect("ENCODE_TABLE contains only ASCII characters")
+}
+
+/// Decodes up to 7 characters into 5-bit groups, packed from the most significant
+/// position of the 35-bit value (so `"a1"` decodes like `"a100000"`).
+///
+/// Returns the packed value and the number of decoded characters.
+pub(crate) fn decode(s: &str) -> Result<(u64, u8), Error> {
+    let len = s.chars().count();
+    if len > 7 {
+        return Err(Error::InvalidLength(len));
+    }
+    let mut value = 0;
+    for (index, character) in s.chars().enumerate() {
+        let u5 = char_to_u5(character).ok_or(Error::InvalidCharacter { character, index })?;
+        value |= (u5 as u64) << (5 * (6 - index));
+    }
+    Ok((value, len as u8))
+}
+
+/// Decodes a character to a 5-bit value.
+fn char_to_u5(c: char) -> Option<u8> {
+    let i = u8::try_from(c).ok()?;
+    match DECODE_TABLE[i as usize] {
+        u8::MAX => None,
+        j => Some(j),
     }
 }

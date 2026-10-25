@@ -6,7 +6,6 @@ categories = ["command-line-utilities"]
 license.workspace = true
 repository.workspace = true
 version.workspace = true
-homepage.workspace = true
 keywords.workspace = true
 readme = "README.md"
 
