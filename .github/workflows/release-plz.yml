@@ -46,6 +46,13 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
+      # cargo-semver-checks builds the published baseline (grain-id 0.16.0) with
+      # all features, and its `prost` feature runs protoc in build.rs.
+      # TODO: remove once a release without the `prost` feature (0.17.0) is out.
+      - uses: arduino/setup-protoc@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: release-plz/action@v0.5
         with:
           command: release-pr
