@@ -6,7 +6,6 @@ description = "Compact, human-readable unique IDs — grain-sized, yet enough fo
 categories = ["data-structures", "encoding", "no-std", "no-std::no-alloc"]
 license.workspace = true
 repository.workspace = true
-homepage.workspace = true
 keywords.workspace = true
 readme = "../../README.md"
 exclude = ["/CHANGELOG.md"]

@@ -6,7 +6,6 @@ resolver = "3"
 edition = "2024"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/sapphire-turtle/grain-id"
-homepage = "https://github.com/sapphire-turtle/grain-id"
 keywords = ["id", "identifier", "uuid", "distributed", "human-readable"]
 version = "0.16.0"
 
