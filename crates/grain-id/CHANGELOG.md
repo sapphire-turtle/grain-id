@@ -5,6 +5,18 @@ All notable changes to this workspace will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.0](https://github.com/sapphire-turtle/grain-id/compare/v0.16.0...v0.17.0) - 2026-10-25
+
+### Other
+
+- drop package.homepage, which duplicates repository
+- *(deps)* update jsonschema requirement from 0.52 to 0.59
+- deprecate GrainId::as_u64 in favour of to_u64
+- [**breaking**] clean up the grain-id crate and fix panics found by fuzzing
+- [**breaking**] drop prost, rusqlite, sea-orm and digest integrations
+- update repository URLs to sapphire-turtle
+- move to a virtual workspace (crates/grain-id, cli)
+
 ## [0.16.0](https://github.com/fluo10/grain-id/compare/v0.15.0...v0.16.0) - 2026-08-29
 
 ### Other
