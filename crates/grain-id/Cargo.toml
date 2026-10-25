@@ -19,40 +19,20 @@ default=["rand", "std"]
 std = ["rand?/thread_rng", "serde?/std"]
 rand = ["dep:rand",]
 arbitrary = ["std", "dep:arbitrary"]
-digest = ["dep:digest"]
-prost = ["dep:prost"]
-rusqlite = ["std", "dep:rusqlite"]
 schemars = ["dep:schemars"]
-sea-orm = ["std", "dep:sea-orm"]
 serde = [ "dep:serde"]
 
 [dependencies]
 arbitrary = { version = "1", optional = true }
-digest = { workspace = true, optional = true }
-prost = { workspace = true, optional = true }
 rand = { workspace = true, default-features = false, optional = true }
-rusqlite = { version = "0.40.2", default-features = false, optional = true }
 schemars = { version = "1.2.1", default-features = false, optional = true }
-sea-orm = { version = "2.0.2", default-features = false, optional = true }
 serde = { version = "1.0.219", default-features = false,  optional = true }
 thiserror = { version = "2.0.12", default-features = false}
-
-[build-dependencies]
-prost-build.workspace = true
 
 [dev-dependencies]
 chrono.workspace = true
 serde_test = "1.0.177"
 serde = { version = "1.0.219", default-features = false, features = ["derive"]}
-sea-orm = { version = "2.0.2", default-features = false, features = ["macros", "mock"]}
-tokio = { version = "1.47.1", default-features = false, features = ["macros", "rt"] }
 rand = { workspace = true, default-features = false, features = ["thread_rng"]}
-sha1.workspace = true
-sha2.workspace = true
-sha3.workspace = true
-shake.workspace = true
 jsonschema = "0.52"
 serde_json = "1.0"
-# Only so `cargo test --all-features` can link the `rusqlite` integration without
-# a system SQLite. Dev-only: it is not part of the published dependency graph.
-libsqlite3-sys = { version = "0.38", features = ["bundled"] }

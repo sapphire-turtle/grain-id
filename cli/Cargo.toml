@@ -18,7 +18,8 @@ path = "src/main.rs"
 anyhow = "1.0.100"
 chrono.workspace = true
 clap = { version = "4.5.48", features = ["derive"] }
-grain-id = { path = "../crates/grain-id", version = "0.16.0", features = ["digest"] }
+digest.workspace = true
+grain-id = { path = "../crates/grain-id", version = "0.16.0" }
 md-5.workspace = true
 rand.workspace = true
 sha1.workspace = true
@@ -26,7 +27,7 @@ sha2.workspace = true
 
 [dev-dependencies]
 digest.workspace = true
-grain-id = { path = "../crates/grain-id", version = "0.16.0", features = ["digest"] }
+grain-id = { path = "../crates/grain-id", version = "0.16.0" }
 md-5.workspace = true
 sha1.workspace = true
 sha2.workspace = true

@@ -28,12 +28,7 @@ The [Cargo SemVer guide's `-sys` section](https://doc.rust-lang.org/cargo/refere
 
 ### Dependencies to watch for
 
-`-sys` crates that may enter this workspace:
-
-- `rusqlite` (when the `rusqlite` feature is enabled) → `libsqlite3-sys`
-- `sea-orm` (when the `sea-orm` feature is enabled, depending on which database driver is selected) → various `-sys` crates
-
-`prost`, `digest`, `chrono`, etc. are pure Rust and not affected.
+No published crate in this workspace currently depends on a `-sys` crate. Re-check this rule whenever a new dependency (or a new optional feature) is added.
 
 ### How to handle it
 

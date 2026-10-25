@@ -18,8 +18,13 @@ fn run_hash(subcmd: &str, args: &[&str]) -> String {
     String::from_utf8(output).unwrap().trim().to_owned()
 }
 
+fn from_digest<D: digest::Digest>(input: &[u8]) -> GrainId {
+    let output = D::digest(input);
+    GrainId::from_byte_prefix(output[..5].try_into().unwrap())
+}
+
 fn assert_hash<D: digest::Digest>(subcmd: &str, input: &[u8], arg: &str) {
-    let expected = GrainId::from_digest::<D>(input);
+    let expected = from_digest::<D>(input);
     let actual: GrainId = run_hash(subcmd, &[arg]).parse().unwrap();
     assert_eq!(actual, expected);
 }
@@ -46,7 +51,7 @@ fn sha256_file() {
     tmp.write_all(content).unwrap();
     tmp.flush().unwrap();
 
-    let expected = GrainId::from_digest::<sha2::Sha256>(content);
+    let expected = from_digest::<sha2::Sha256>(content);
     let actual: GrainId = run_hash("sha256", &[tmp.path().to_str().unwrap()])
         .parse()
         .unwrap();
@@ -56,7 +61,7 @@ fn sha256_file() {
 #[test]
 fn sha256_stdin() {
     let content = b"stdin test";
-    let expected = GrainId::from_digest::<sha2::Sha256>(content);
+    let expected = from_digest::<sha2::Sha256>(content);
 
     let mut child = Command::new(bin())
         .arg("sha256")

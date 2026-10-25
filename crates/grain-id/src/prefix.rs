@@ -9,7 +9,7 @@ use crate::{
 
 /// A prefix for filtering or querying [`GrainId`] values by their string representation.
 ///
-/// When grain-ids are stored as integers (e.g. in SQLite or protobuf), prefix-based
+/// When grain-ids are stored as integers (e.g. in a database), prefix-based
 /// filtering is not straightforward. `GrainIdPrefix` solves this by computing the
 /// inclusive numeric range [`min`](Self::min)..=[`max`](Self::max) that corresponds
 /// to all IDs starting with the given prefix.
@@ -29,14 +29,14 @@ use crate::{
 /// # }
 /// ```
 ///
-/// # rusqlite usage
+/// # SQL usage
 ///
 /// ```rust,ignore
 /// let prefix: GrainIdPrefix = "a1".parse()?;
 /// // WHERE id BETWEEN ?1 AND ?2
 /// stmt.execute(params![
-///     prefix.min(),
-///     prefix.max(),
+///     u64::from(prefix.min()) as i64,
+///     u64::from(prefix.max()) as i64,
 /// ])?;
 /// ```
 #[derive(Debug)]
