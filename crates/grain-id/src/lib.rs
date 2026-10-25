@@ -6,8 +6,8 @@
 //! ```rust
 //! use grain_id::GrainId;
 //!
-//! let id = GrainId::random();
-//! println!("{}", id); // e.g. "123abcd"
+//! # #[cfg(all(feature = "rand", feature = "std"))]
+//! println!("{}", GrainId::random()); // e.g. "123abcd"
 //! ```
 //!
 //! # Why grain-id?
@@ -25,19 +25,19 @@
 //! Add this to your `Cargo.toml`:
 //! ```toml
 //! [dependencies]
-//! grain-id = "0.14.1"
+//! grain-id = "0.17"
 //!
 //! # With optional features
-//! grain-id = { version = "0.15.0", features = ["arbitrary", "serde", "schemars"] }
+//! grain-id = { version = "0.17", features = ["arbitrary", "serde", "schemars"] }
 //! ```
 //!
 //! ## For no_std Environments
 //!
-//! This crate support `no_std`.
-//! For `no_std` environment, you'll need to disable default features.
+//! This crate supports `no_std` and does not need an allocator.
+//! To use it in a `no_std` environment, disable the default features.
 //! ```toml
 //! [dependencies]
-//! grain-id = { version = "0.14.1", default-features = false }
+//! grain-id = { version = "0.17", default-features = false }
 //! ```
 //!
 //! # Features
@@ -63,11 +63,9 @@
 //! ```rust
 //! use grain_id::GrainId;
 //! # fn main() -> Result<(), grain_id::Error> {
-//! // Generate random grain-id
-//! let grain_id = GrainId::random();
-//!
-//! // e.g. `123abcd`
-//! println!("'{}'", grain_id);
+//! // Generate random grain-id, e.g. `123abcd`
+//! # #[cfg(all(feature = "rand", feature = "std"))]
+//! println!("{}", GrainId::random());
 //!
 //! // Parse from string
 //! let valid_id: GrainId = "012atvw".parse()?;
@@ -82,36 +80,30 @@
 //! assert_eq!(valid_id, id_from_int);
 //!
 //! // Lossy conversion from oversized int is allowed.
-//! let id_from_overflowed_int = GrainId::from_u64_lossy(GrainId::CAPACITY + num);
+//! let id_from_overflowed_int = GrainId::from_u64_lossy((1 << GrainId::BITS) + num);
 //! assert_eq!(valid_id, id_from_overflowed_int);
 //!
 //! # Ok(())
 //! # }
 //! ```
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(any(feature = "std", test)), no_std)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
-#[cfg(all(not(feature = "std"), not(test)))]
-#[macro_use]
-extern crate core as std;
+#[cfg(feature = "schemars")]
+extern crate alloc;
 
-/// Provides constants and private functions about encoding/decoding alphabet.
+/// The BASE32 alphabet used to encode and decode grain-ids.
 ///
-/// This module implements encoding and decoding character based on [Crockford's Base32](https://www.crockford.com/base32.html) with following exceptions:
-///
-/// - The letter `u` (`U`) is decoded to 27, same as `v`.
-/// - Characters are separated by hyphens every three characters (triplet) during encoding.
-///   During decoding, hyphens may be omitted or replaced with underscores.
+/// The alphabet is based on [Crockford's Base32](https://www.crockford.com/base32.html):
+/// `i`, `l`, `o` and `u` are never produced by encoding. When decoding, they are accepted as
+/// aliases of `1`, `1`, `0` and `v` respectively, and letters are case-insensitive.
 pub mod alphabet;
-mod core;
 mod error;
-mod macros;
-
-#[cfg(feature = "std")]
+mod id;
 mod prefix;
 
 #[cfg(feature = "std")]
-mod std;
+mod time;
 
 #[cfg(feature = "arbitrary")]
 mod arbitrary;
@@ -125,7 +117,6 @@ mod rand;
 #[cfg(feature = "serde")]
 mod serde;
 
-pub use core::GrainId;
 pub use error::Error;
-#[cfg(feature = "std")]
+pub use id::GrainId;
 pub use prefix::GrainIdPrefix;

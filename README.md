@@ -29,19 +29,19 @@ grain-id bridges the gap between human readability and technical requirements.
 Add this to your `Cargo.toml`:
 ```toml
 [dependencies]
-grain-id = "0.14.1"
+grain-id = "0.17"
 
 # With optional features
-grain-id = { version = "0.15.0", features = ["arbitrary", "serde", "schemars"] }
+grain-id = { version = "0.17", features = ["arbitrary", "serde", "schemars"] }
 ```
 
 ### For no_std Environments
 
-This crate support `no_std`.
-For `no_std` environment, you'll need to disable default features.
+This crate supports `no_std` and does not need an allocator.
+To use it in a `no_std` environment, disable the default features.
 ```toml
 [dependencies]
-grain-id = { version = "0.14.1", default-features = false }
+grain-id = { version = "0.17", default-features = false }
 ```
 
 ## Features
@@ -85,7 +85,7 @@ let id_from_int: GrainId = num.try_into()?;
 assert_eq!(valid_id, id_from_int);
 
 // Lossy conversion from oversized int is allowed.
-let id_from_overflowed_int = GrainId::from_u64_lossy(GrainId::CAPACITY + num);
+let id_from_overflowed_int = GrainId::from_u64_lossy((1 << GrainId::BITS) + num);
 assert_eq!(valid_id, id_from_overflowed_int);
 
 ```

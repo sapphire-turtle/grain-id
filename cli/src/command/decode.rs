@@ -4,9 +4,9 @@ use grain_id::GrainId;
 /// Decode grain-id string to integer.
 #[derive(Args, Debug)]
 pub struct DecodeArgs {
-    /// Grain id String
+    /// Grain id string (7 characters, case-insensitive)
     ///
-    /// Examples: "123" "456-789" "abc-def-ghj" "kmn-pqr-stv-wxy"
+    /// Examples: "0000000" "012abcd" "zzzzzzz"
     grain_id: GrainId,
 }
 

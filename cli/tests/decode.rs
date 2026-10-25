@@ -7,7 +7,7 @@ fn assert_decode(id: GrainId) {
     let path = PathBuf::from(std::env!("CARGO_BIN_EXE_grain-id"));
     let output = Command::new(path)
         .arg("decode")
-        .arg(&id.to_string())
+        .arg(id.to_string())
         .output()
         .unwrap()
         .stdout;

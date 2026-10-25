@@ -11,7 +11,7 @@ fn assert_encode(id: GrainId) {
         .output()
         .unwrap()
         .stdout;
-    assert_eq!(output, format!("{}\n", &id.to_string()).into_bytes());
+    assert_eq!(output, format!("{id}\n").into_bytes());
 }
 
 #[test]
