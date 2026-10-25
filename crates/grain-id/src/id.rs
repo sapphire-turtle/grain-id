@@ -146,17 +146,10 @@ impl GrainId {
     }
 
     /// Returns a reference of internal 64bit integer.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use grain_id::*;
-    /// # fn main() -> Result<(), Error> {
-    /// let id = GrainId::from_u64(0x123456789)?;
-    /// assert_eq!(id.as_u64(), &0x123456789);
-    /// # Ok(())
-    /// # }
-    /// ```
+    #[deprecated(
+        since = "0.17.0",
+        note = "Use `to_u64()` (or `u64::from(id)`) to get the value instead."
+    )]
     pub const fn as_u64(&self) -> &u64 {
         &self.0
     }
@@ -354,7 +347,7 @@ impl GrainId {
 
 impl AsRef<u64> for GrainId {
     fn as_ref(&self) -> &u64 {
-        self.as_u64()
+        &self.0
     }
 }
 

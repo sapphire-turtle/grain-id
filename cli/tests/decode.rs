@@ -11,7 +11,7 @@ fn assert_decode(id: GrainId) {
         .output()
         .unwrap()
         .stdout;
-    assert_eq!(output, format!("{}\n", id.as_u64()).into_bytes());
+    assert_eq!(output, format!("{}\n", id.to_u64()).into_bytes());
 }
 
 #[test]
