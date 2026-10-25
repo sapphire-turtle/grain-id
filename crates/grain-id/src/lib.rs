@@ -1,6 +1,6 @@
 //! Compact, human-readable unique IDs — grain-sized, yet enough for a lifetime.
 //!
-//! For a language agnostic specification of the grain-id format, see [SPECS.md](https://github.com/fluo10/grain-id/blob/main/SPECS.md)
+//! For a language agnostic specification of the grain-id format, see [SPECS.md](https://github.com/sapphire-turtle/grain-id/blob/main/SPECS.md)
 //!
 //! # Quick Start
 //! ```rust

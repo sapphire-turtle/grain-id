@@ -1,5 +1,5 @@
 # grain-id-cli
-Reference tool to generate/encode/decode [grain-id](https://github.com/fluo10/grain-id).
+Reference tool to generate/encode/decode [grain-id](https://github.com/sapphire-turtle/grain-id).
 
 ## Installation
 
