@@ -1,0 +1,27 @@
+name: Release binaries
+
+# Builds the grain-id CLI for the four release platforms and attaches it to an
+# existing release. release-plz.yml calls it after a release; run it by hand to
+# (re)upload the files for an existing tag.
+on:
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing release tag to attach binaries to (e.g. v0.17.0).'
+        required: true
+        type: string
+
+jobs:
+  cli:
+    permissions:
+      contents: write
+    uses: sapphire-turtle/.github/.github/workflows/release-binary.yml@v1
+    with:
+      tag: ${{ inputs.tag }}
+      package: grain-id-cli
+      binary: grain-id

@@ -1,0 +1,8 @@
+# Pinned so every machine and CI build with the same compiler: CI runs clippy
+# with `-D warnings` and `cargo fmt --check`, so an unpinned toolchain lands each
+# new stable release's lints and formatting in a red CI run on an unrelated pull
+# request. Every sapphire-turtle repository pins the same version; bump them
+# together, fixing whatever the new toolchain complains about in the same commit.
+[toolchain]
+channel = "1.99.0"
+components = ["clippy", "rustfmt"]
