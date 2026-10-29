@@ -4,48 +4,31 @@ on:
   pull_request:
 
 jobs:
-  format: 
-    name: Format
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - name: Install nightly rustfmt
-        run: rustup component add --toolchain nightly rustfmt
-      - name: Run rustfmt
-        run: |
-          cargo +nightly fmt --check --all
-          cargo +nightly fmt --check --manifest-path fuzz/Cargo.toml
-      - name: Run clippy
-        run: cargo clippy --workspace --all-features --all-targets -- -D warnings
-  test:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v7
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - run: cargo test --workspace --all-features
+  ci:
+    uses: sapphire-turtle/.github/.github/workflows/rust-ci.yml@v1
+    with:
+      # .rustfmt.toml sets nightly-only options.
+      rustfmt-toolchain: nightly
+
   test-no-default-features:
     name: Test (no default features)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      - run: cargo test -p grain-id --no-default-features
+      - run: cargo test -p grain-id --no-default-features --locked
+
   no-std:
     name: Build (no_std)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: thumbv7em-none-eabihf
+      # Added to the rust-toolchain.toml toolchain, which rustup installs here.
+      - run: rustup target add thumbv7em-none-eabihf
       - uses: Swatinem/rust-cache@v2
-      - run: cargo build -p grain-id --no-default-features --target thumbv7em-none-eabihf
-      - run: cargo build -p grain-id --no-default-features --features rand,serde,schemars --target thumbv7em-none-eabihf
+      - run: cargo build -p grain-id --no-default-features --target thumbv7em-none-eabihf --locked
+      - run: cargo build -p grain-id --no-default-features --features rand,serde,schemars --target thumbv7em-none-eabihf --locked
+
   fuzz:
     name: Fuzz
     runs-on: ubuntu-latest
@@ -55,16 +38,19 @@ jobs:
         target: [parse, roundtrip, serde]
     steps:
       - uses: actions/checkout@v7
-      - uses: dtolnay/rust-toolchain@nightly
+      # cargo-fuzz needs nightly; `+nightly` overrides rust-toolchain.toml.
+      - run: rustup toolchain install nightly --profile minimal --component rustfmt
       - uses: taiki-e/install-action@v2
         with:
           tool: cargo-fuzz
+      # fuzz/ is its own workspace, which the shared fmt job does not cover.
+      - run: cargo +nightly fmt --check --manifest-path fuzz/Cargo.toml
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: fuzz
       # The prebuilt cargo-fuzz binary is built for musl and defaults to that
       # target, which AddressSanitizer does not support.
-      - run: cargo fuzz run --target x86_64-unknown-linux-gnu ${{ matrix.target }} -- -max_total_time=60
+      - run: cargo +nightly fuzz run --target x86_64-unknown-linux-gnu ${{ matrix.target }} -- -max_total_time=60
       - name: Upload crash artifacts
         if: failure()
         uses: actions/upload-artifact@v7

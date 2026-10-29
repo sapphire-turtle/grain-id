@@ -1,9 +1,6 @@
 name: cargo-deny
 
-# License compatibility, advisory (RUSTSEC) scanning, banned crates, and
-# unknown-source checks. The weekly schedule catches newly-filed advisories
-# against deps that haven't changed.
-
+# A weekly run catches advisories filed against dependencies that did not change.
 on:
   pull_request:
     paths:
@@ -19,9 +16,4 @@ on:
 
 jobs:
   cargo-deny:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: EmbarkStudios/cargo-deny-action@v2
-        with:
-          command: check
+    uses: sapphire-turtle/.github/.github/workflows/cargo-deny.yml@v1

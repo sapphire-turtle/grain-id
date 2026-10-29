@@ -6,7 +6,7 @@ Releases for this repository are automated with [release-plz](https://release-pl
 
 1. When changes are pushed to `main`, release-plz automatically creates or updates a release PR.
 2. Review the release PR (version, `CHANGELOG.md`, `Cargo.toml`).
-3. Merging the PR creates the `v{version}` tag, the GitHub release, publishes to crates.io, and builds CLI binaries for each target platform.
+3. Merging the PR creates the `v{version}` tag, the GitHub release, publishes to crates.io, and builds CLI binaries for each target platform. To (re)upload them for an existing tag, run "Release binaries" manually with that tag. Both use the organization's shared workflows ([sapphire-turtle/.github](https://github.com/sapphire-turtle/.github)).
 
 ## Version bump rules
 

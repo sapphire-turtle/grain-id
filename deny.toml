@@ -2,7 +2,7 @@
 # Reference: https://embarkstudios.github.io/cargo-deny/
 
 [graph]
-# Restrict the dep graph to the platforms CI exercises (see ci.yml). This
+# Restrict the dep graph to the platforms CI exercises (the shared rust-ci.yml). This
 # drops UEFI-only transitive deps like `r-efi` (LGPL-2.1-or-later) pulled in
 # by `getrandom`, so we don't need to globally allow their licenses.
 targets = [
