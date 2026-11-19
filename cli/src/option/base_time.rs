@@ -1,4 +1,5 @@
-use chrono::{DateTime, Local};
+use std::time::SystemTime;
+
 use clap::Args;
 
 /// Base timestamp options
@@ -12,14 +13,15 @@ pub struct BaseTimeOptionArgs {
     #[arg(short, long)]
     pub unix: bool,
 
-    #[arg(short, long)]
-    pub base: Option<DateTime<Local>>,
+    /// Use the given RFC 3339 timestamp (e.g. `2025-01-01T00:00:00+09:00`) as base time.
+    #[arg(short, long, value_parser = parse_timestamp)]
+    pub base: Option<SystemTime>,
 }
 
 /// Enum parsed from BaseTimeOptionArgs.
 pub enum BaseTimeOption {
     Unix,
-    Base(DateTime<Local>),
+    Base(SystemTime),
 }
 
 impl From<BaseTimeOptionArgs> for BaseTimeOption {
@@ -30,4 +32,9 @@ impl From<BaseTimeOptionArgs> for BaseTimeOption {
             _ => unreachable!(),
         }
     }
+}
+
+/// Parses an RFC 3339 timestamp string into a [`SystemTime`] via [`jiff::Timestamp`].
+pub fn parse_timestamp(s: &str) -> Result<SystemTime, jiff::Error> {
+    SystemTime::try_from(s.parse::<jiff::Timestamp>()?)
 }
