@@ -10,12 +10,13 @@ impl GrainId {
     /// # Examples
     ///
     /// ```
-    /// use chrono::Utc;
+    /// use jiff::Timestamp;
+    /// use std::time::SystemTime;
     /// # use grain_id::*;
     ///
-    /// let timestamp = Utc::now();
-    /// let id = GrainId::from_timestamp_unix(timestamp);
-    /// assert_eq!(id.to_u64(), ((timestamp.timestamp_millis() / 100) as u64));
+    /// let timestamp = Timestamp::now();
+    /// let id = GrainId::from_timestamp_unix(SystemTime::try_from(timestamp).unwrap());
+    /// assert_eq!(id.to_u64(), ((timestamp.as_millisecond() / 100) as u64));
     /// ```
     pub fn from_timestamp_unix<T>(timestamp: T) -> Self
     where
@@ -34,23 +35,19 @@ impl GrainId {
     /// # Examples
     ///
     /// ```
-    /// use chrono::NaiveDate;
+    /// use jiff::Timestamp;
+    /// use std::time::SystemTime;
     /// # use grain_id::*;
     ///
-    /// let base_time = NaiveDate::from_ymd_opt(2025, 1, 1)
-    ///     .unwrap()
-    ///     .and_hms_opt(0, 0, 0)
-    ///     .unwrap()
-    ///     .and_utc();
-    /// let timestamp = NaiveDate::from_ymd_opt(2025, 11, 28)
-    ///     .unwrap()
-    ///     .and_hms_micro_opt(12, 34, 56, 789)
-    ///     .unwrap()
-    ///     .and_utc();
-    /// let id = GrainId::from_timestamp_since(timestamp, base_time);
+    /// let base_time: Timestamp = "2025-01-01T00:00:00Z".parse().unwrap();
+    /// let timestamp: Timestamp = "2025-11-28T12:34:56.000789Z".parse().unwrap();
+    /// let id = GrainId::from_timestamp_since(
+    ///     SystemTime::try_from(timestamp).unwrap(),
+    ///     SystemTime::try_from(base_time).unwrap(),
+    /// );
     /// assert_eq!(
     ///     id.to_u64(),
-    ///     (((timestamp - base_time).num_milliseconds() / 100) as u64)
+    ///     ((timestamp.duration_since(base_time).as_millis() / 100) as u64)
     /// );
     /// ```
     pub fn from_timestamp_since<T, U>(timestamp: T, base_time: U) -> Self

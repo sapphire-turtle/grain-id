@@ -1,15 +1,18 @@
-use chrono::{DateTime, Local};
+use std::time::SystemTime;
+
 use clap::Args;
 use grain_id::GrainId;
 
-use crate::option::{BaseTimeOption, BaseTimeOptionArgs};
+use crate::option::{BaseTimeOption, BaseTimeOptionArgs, parse_timestamp};
 
 #[derive(Args, Debug)]
 /// Generate time-based grain-id
 pub struct TimestampArgs {
     #[command(flatten)]
     base: BaseTimeOptionArgs,
-    timestamp: Option<DateTime<Local>>,
+    /// RFC 3339 timestamp (e.g. `2025-11-28T12:34:56+09:00`). Defaults to now.
+    #[arg(value_parser = parse_timestamp)]
+    timestamp: Option<SystemTime>,
 }
 
 impl TimestampArgs {
